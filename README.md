@@ -151,14 +151,34 @@ E-UTRAN在完成S1连接建立过程前，完成RRC连接的建立。因此，�
 
 
 
-## 3. 大量空缺值的KPI
+## 备忘
 
-![image-20211119160716093](C:\Users\meiji\AppData\Roaming\Typora\typora-user-images\image-20211119160716093.png)
+**IF**：
 
-
-
-
-
-![image-20211119162041397](C:\Users\meiji\AppData\Roaming\Typora\typora-user-images\image-20211119162041397.png)
+- 模型评估？
+- 添加时间信息作为特征
+- 不分开cell，把Id作为特征，按Id填充空值
 
 
+
+
+
+
+
+# References:
+
+ [处理 Python 中的缺失值——完整指南](https://www.analyticsvidhya.com/blog/2021/05/dealing-with-missing-values-in-python-a-complete-guide/)
+
+插值法([df.interpolate](https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.interpolate.html))：[插值 - Python 中的插值功能可以填补缺失值](https://www.analyticsvidhya.com/blog/2021/06/power-of-interpolation-in-python-to-fill-missing-values/)
+
+[内插法和外推法简介](https://www.cnblogs.com/luluathena/archive/2010/11/27/1889906.html)
+
+
+
+[隔离森林进行异常检测的python代码示例 - 有监督](https://practicaldatascience.co.uk/machine-learning/how-to-use-the-isolation-forest-model-for-outlier-detection)
+
+[无监督Isolation Forest异常检测](https://www.kaggle.com/rgaddati/unsupervised-fraud-detection-isolation-forest)
+
+
+
+[Nicolas Goix：如何评估无监督AD算法](https://ngoix.github.io/slides_icml2016.pdf)，[论文版](https://arxiv.org/pdf/1607.01152.pdf)
