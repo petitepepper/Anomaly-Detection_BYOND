@@ -67,29 +67,43 @@ Therefore, we can later use some missing value padding methods for continuous nu
 
 
 
-## 1.2 Feature Engineering
+## 1.2 Look into data by `cell_id`
 
-### 1) Drop features with too much missing values
+### 1) Features with too many missing values
 
 Based on the above discussion, we looked at the missing values in each cell data
 
 ![](images/NaN_count_by_cell.png)
 
-It is obvious that for the third and fourth cell in the above figure, they do not have values on many features, which can be simply removed.  In addition, for those variables with a high percentage of missing values (e.g., 70%), we can also remove them.
-
-
+It is obvious that for the third and fourth cell in the above figure, they have much more missing values on certain features.  To see it more clearly, we can temporarily delete those columns who have a high percentage of missing values (e.g. 70%)
 
 ![](images/after_drop.png)
 
-After this operation, there are few missing values that we need to process further. 
+
+
+Now, we will look into the distribution of those columns whose NaN values need to be filled later.
+
+<img src="images/distribution_of_sparse_columns.png" style="zoom:80%;" />
+
+For different distributions, we can propose the following strategies:
+
+- fill with <u>mode</u> : for some features with very concentrated distribution (e.g. `Inter_RAT_HO_SR_GERAN_SRVCC_RATIO`, row3, col1 in figure above)
+
+- fill with <u>mean</u> : for features with relatively large variance (e.g. `VoLTE_total_traffic`, row1, col2 in figure above)
+
+- fill with <u>specific value</u> depending on the definition of feature : the data distribution of certain features varies widely across cells (e.g. `E_UTRAN_Inter_Freq_HO_SR_RATIO`, row3, col3 in figure above. Its left and right parts are actually the distribution in two different cells).
+
+  In our case, the <u>median</u> is used. This is because it is tested that the median of these characteristics is very close to the center of one of the distributions. Of course, we can be very flexible in our approach for this type of features
 
 
 
-### 2) Remove highly relevant features
+### 2) Highly relevant features
 
 When modeling, features that are highly correlated can cause redundancy. We can simplify the model by keeping only the features with weak correlation.
 
 ![](images/correlation.png)
+
+
 
 
 
@@ -106,5 +120,4 @@ When modeling, features that are highly correlated can cause redundancy. We can 
 # 2. Modeling
 
 ## 2.1 Isolation Forest
-
 
