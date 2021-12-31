@@ -178,3 +178,8 @@ As before, we start with a relatively simple model structure.
 <img src="images/image-20211228234751271.png" alt="image-20211228234751271" style="zoom: 67%;" />
 
 <img src="images/image-20211228234827498.png" alt="image-20211228234827498" style="zoom:63%;" />
+
+
+
+For the VAE model, we need to calculate the difference (which we call "loss") between the reconstructed data and the original data, and outliers tend to have larger losses. 
+
