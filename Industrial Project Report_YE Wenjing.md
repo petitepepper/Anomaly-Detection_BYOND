@@ -187,13 +187,13 @@ In brief, the solution idea proposed by the isolation forest is as follows:
 1. Randomly select a feature and its segmentation value
 2. Recursively segment the dataset only until it is indivisible/attains maximum depth
 
-In general, the more easily the point is to be isolated the more likely it would be an anomaly.
+In general, the more easily the point is to be isolation the more likely it would be an anomaly.
 
 <img src="images/image-20211228215515386.png" alt="Separation(x0 is more likely to be an outlier than xi)" style="zoom: 80%;" />
 
 #### (2) Implementation
 
-Since there is already a wrapped isolated forest algorithm in python's `sklearn` library, we can use it directly.  Here, we use the default parameters:
+Since there is already a wrapped isolation forest algorithm in python's `sklearn` library, we can use it directly.  Here, we use the default parameters:
 
 ```python
 from sklearn.ensemble import IsolationForest
@@ -235,17 +235,32 @@ As before, we start with a relatively simple model structure. Specifically, in t
 
 For the VAE model, we need to calculate the difference (which we call "loss") between the reconstructed data and the original data, and outliers tend to have larger losses. 
 
+
+
 ### 2.2.3 Combination of *IF* and *VAE*
 
-Combining the above theory, we can easily think that the output of the above encoder can be used as input to the *IF* model. For this, we can interpret it as using the new features learned by VAE as input (they may be more representative than the original ones) and then isolating those points that are far from the majority with *IF* algorithm. In this step, we keep the basic settings of the two models above.
+#### (1) Stacking 
+
+In *Ensemble Learning*, there is a method called "*stacking*", which means that the output of one model is used as the input of another. This provides us with a new way of thinking, and currently, there is no existing research on this approach.
+
+Therefore, combining the above theory, we can easily come to the idea that, the output of the "encoder" can be used as input to the *IF* model. For this, we can interpret it as using the new features learned by VAE as input (they may be more representative than the original ones) and then isolating those points that are far from the majority with *IF* algorithm. 
+
+And in this section, we keep exactly the settings of the two models above, but we won't use the "decoder" of the VAE model.
+
+#### (2) Bagging
+
+Also in integration learning, there is a method called "Bagging". It is a voting mechanism, that is, it considers multiple models equally and takes result of majority as the final answer. In this case, we do not need to reconstruct the new model. We only analyze the results of the above two existing models. Specifically, we can consider a sample as an outlier if :
+
+- The IF model or the VAE model thinks it's abnormal
+- OR : both models think it's abnormal
 
 
 
-## 2.3 Evaluation 
+## 2.3 Result Evaluation 
 
-Next, we will analyze the output metrics (abnormal probabilities or losses) of the three models mentioned above.
+In this section, we will analyze the output metrics (abnormal probabilities or losses) of the three models mentioned above.
 
-### 2.3.1 Analysis on metrics
+### 2.3.1 Analysis on metrics obtained
 
 #### (1) Distribution
 
@@ -262,26 +277,18 @@ Next, we will analyze the output metrics (abnormal probabilities or losses) of t
 
 > Note: In the above visualization a box line plot is used, which uses a method called ***IQR*** (which we will explain in detail later).
 >
-> - orange line represents the median
-> - the upper and lower boundaries of the rectangle represent the upper(Q3) and lower quartiles(Q1)
-> - the two line segments outside of it represent the upper and lower boundaries
-> - circles beyond the boundaries are considered as outliers.
+> - the orange line represents the median
+> - the upper and lower boundaries of the rectangle box represent the upper(Q3) and lower quartiles(Q1)
+> - the two line segments outside of the box represent the upper and lower boundaries
+> - the circles beyond the boundaries are considered as outliers.
+
+It can be seen that the two algorithms related to isolation forest get similar results. And for the *VAE_loss*, there is a large discrepancy in its value (the mean value is 0.74 while the max value is 97.6). That is because the loss of VAE can be taken without an upper limit. 
 
 
-
-It can be seen that the two algorithms related to isolated forest get similar results, while in *VAE_loss* there is a large difference in its value because the value of loss is taken without an upper limit. 
-
-To make it clear, we can use the IQR method to calculate the upper bound and its corresponding quantile and get the following results:
-
-|                        | IF_score | VAE_loss | VAE_IF_score |
-| ---------------------- | -------- | -------- | ------------ |
-| upper bound            | 0.54     | 1.65     | 0.58         |
-| Corresponding Quantile | 98.90%   | 91.94%   | 97.26%       |
-| Anomaly percentage     | 1.1%     | 8.06%    | 2.74%        |
 
 #### (2) Interrelation
 
-Next, we put the three metrics together to observe their interrelationship. Since the value range of *VAE_loss* differs significantly from the other two, we use color to indicate it (the darker the color, the larger the value)
+Next, we put the three metrics together to observe their interrelationship. Since the value range of *VAE_loss* differs significantly from the other two, we use color to indicate it (the darker the color, the larger the value).
 
 <img src="images/image-20211231022646570.png" alt="image-20211231022646570" style="zoom:67%;" />
 
@@ -294,16 +301,14 @@ It can be seen that：
 
 #### (3) Visualize metrics on original data
 
-Since our original data is 20-dimensional, in order to visualize them, we can use PCA to downscale it to 2~3 dimensions. Of course, reducing the dimensionality will introduce some information loss, but we are here mainly to facilitate the demonstration of the results.
-
-
+Since our original data is 20-dimensional, in order to visualize them, we can use *PCA* to downscale it to 2~3 dimensions. Of course, reducing the dimensionality will introduce some information loss, but we are here mainly to facilitate the demonstration of the results.
 
 |      | IF_score                                                     | VAE_loss                                                     | VAE_IF_score                                                 |
-| ---- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| 2D   | <img src="images/image-20211231025928407.png" alt="image-20211231025928407" style="zoom:50%;" /> | <img src="images/image-20211231030031250.png" alt="image-20211231030031250" style="zoom:50%;" /> | <img src="images/image-20211231030158603.png" alt="image-20211231030158603" style="zoom:50%;" /> |
-| 3D   | <img src="images/image-20211231025803418.png" alt="image-20211231025803418"  /> | <img src="images/image-20211231025949531.png" alt="image-20211231025949531"  /> | ![image-20211231030142496](images/image-20211231030142496.png) |
+| :--: | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
+|  2D  | <img src="images/image-20211231025928407.png" alt="image-20211231025928407" style="zoom:50%;" /> | <img src="images/image-20211231030031250.png" alt="image-20211231030031250" style="zoom:50%;" /> | <img src="images/image-20211231030158603.png" alt="image-20211231030158603" style="zoom:50%;" /> |
+|  3D  | <img src="images/image-20211231025803418.png" alt="image-20211231025803418"  /> | <img src="images/image-20211231025949531.png" alt="image-20211231025949531"  /> | ![image-20211231030142496](images/image-20211231030142496.png) |
 
-In the above figure, we compressed the original 20-dimensional data to 2~3 dimensions respectively for visualization. Where the darker color indicates the higher possibility of anomaly. It can be seen that.
+In the above figure, we compressed the original 20-dimensional data to 2~3 dimensions respectively for visualization, where the darker color indicates the higher possibility of anomaly. It can be seen that:
 
 - **Isolation Forest** is good at finding out the data edges as well as very small clusters.
 
@@ -313,11 +318,11 @@ In the above figure, we compressed the original 20-dimensional data to 2~3 dimen
 
   
 
-### 2.3.2 Identification of anomalies
+### 2.3.2 Identification of anomalies 
 
-#### (1) IQR method
+#### IQR method
 
-In descriptive statistics, the interquartile range (IQR) is **a measure of statistical dispersion**, which is the spread of the data. It is defined as the difference between the 75th and 25th percentiles of the data. 
+In descriptive statistics, the interquartile range (IQR) is **a measure of statistical dispersion**, which is the spread of the data. It is defined as the difference between the 75% and 25% percentiles of the data. 
 
 Mathematically, we have:
 
@@ -327,26 +332,47 @@ Mathematically, we have:
 
 where Q1, Q3 are 25% and 75% quantile respectively. But in our case, the lower bound won't be used, since the lower the metric value is, the less possible a record will be an anomaly.
 
-For each data record, we compare whether its value for each metric exceeds the above upper bound. By using the IQR method, we can determine if the record has an exception based on how many metrics indicate it's an anomaly. If we consider a record is abnormal when `n` metric(s) indicate that, then we have : 
-- `n` = 1,  the anomaly ratio is 9.30%
-- `n` = 2,  the anomaly ratio is 2.35%
-- `n` = 3,  the anomaly ratio is 0.24%
-
-<img src="images/image-20211231025403519.png" alt="image-20211231025403519" style="zoom: 67%;" />
-
-#### (2) Stacking
-
-If we use the idea of stacking in an integrated model (making the output of some model the input of another model), we can choose to use these three metrics as the input of another IF model.
-
-We use the default parameters and the rest of the steps are similar to what we mentioned in the previous section on models. After visualizing the results, we get the following:
-
-<img src="images/image-20211231025335558.png" alt="image-20211231025335558" style="zoom:67%;" />
 
 
+#### (1) Results - Stacking Model
 
+To make it clear, we calculate the upper bound (threshold) and its corresponding quantile and get the following results:
+
+|                        | IF_score  | VAE_loss  | VAE_IF_score |
+| ---------------------- | --------- | --------- | ------------ |
+| upper bound            | 0.54      | 1.65      | 0.58         |
+| Corresponding Quantile | 98.90%    | 91.94%    | 97.26%       |
+| Anomaly percentage     | **1.10%** | **8.06%** | **2.74%**    |
+
+That is, if we use the IQR method to calculate the threshold for determining whether a sample is anomalous or not, then for each of the three models mentioned above, the proportion of outliers we obtain is 1.10%, 8.06% and 2.74%
+
+It can be seen that the result obtained using a combination of the two models (IF + VAE) is between that of Isolation Forest and VAE. 
 
 
 
+#### (2) Result - Bagging Model
+
+If we count the number of times a sample is determined to be an outlier by the isolated forest model as well as the VAE model, we can get the following results
+
+| Nb of being recorded as anomaly | Percentage | Explanation                             |
+| ------------------------------- | ---------- | --------------------------------------- |
+| 0                               | 91.6053%   | Not considered as anomaly               |
+| 1                               | 07.6338%   | Considered as anomaly by IF **or** VAE  |
+| 2                               | 00.7610%   | Considered as anomaly by IF **and** VAE |
+
+This means that if there are `n` model(s) that consider a sample to be an outlier, we judge it to be an anomaly, and then the relationship between `n` and the proportion of anomalous samples is:
+
+- `n` = 1 : **8.4%**, that is, the "union" of the 2 models' results
+
+- `n` = 2 : **0.76%**, that is, the "intersection" of the 2 models' results
+
+  
+
+### 2.3.3 Conclusion
+
+Based on the basic isolated forest and VAE models, we use two integrated learning methods, "stacking" and "bagging", with the former yielding results in between the results of the basic model and the latter falling outside this range.
+
+But for this, we can't directly decide which result is better. In fact, we need further expert opinion (a priori knowledge) to determine the performance of the model.
 
 
 
@@ -378,7 +404,7 @@ For this, I visualized the results and calculated the percentage of records that
 
 ### 3.2.1 Theoretical aspect
 
-In the theoretical phase of this project, I learned the theoretical concepts of Isolated Forest and (Variational) Auto-Encoder. More importantly, from this starting point, I reviewed and learned more about statistics (mixed Gaussian models, cross-entropy...), and thus able to understand the models from a more "statistical learning method" perspective.
+In the theoretical phase of this project, I learned the theoretical concepts of isolation Forest and (Variational) Auto-Encoder. More importantly, from this starting point, I reviewed and learned more about statistics (mixed Gaussian models, cross-entropy...), and thus able to understand the models from a more "statistical learning method" perspective.
 
 ### 3.2.2 Practical aspect
 
