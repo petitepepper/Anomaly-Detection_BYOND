@@ -68,9 +68,11 @@ These data come from 5 cells, that is, each cell contains 1656 records.
 
 
 
-First Let's check the NaN values in our dataset :
+First Let's check the null values in our dataset :
 
 ```
+FEATURES												Num_null
+---------------------------------------------------------------
 index                                                         0
 cell_id                                                       0
 DL_TRAFFIC_VOLUME                                            21
@@ -334,7 +336,7 @@ where Q1, Q3 are 25% and 75% quantile respectively. But in our case, the lower b
 
 
 
-#### (1) Results - Stacking Model
+#### (1) Result - Stacking Model
 
 To make it clear, we calculate the upper bound (threshold) and its corresponding quantile and get the following results:
 
@@ -352,7 +354,7 @@ It can be seen that the result obtained using a combination of the two models (I
 
 #### (2) Result - Bagging Model
 
-If we count the number of times a sample is determined to be an outlier by the isolated forest model as well as the VAE model, we can get the following results
+If we count the number of times a sample is determined to be an outlier by the Isolated Forest model as well as the VAE model, we can get the following results
 
 | Nb of being recorded as anomaly | Percentage | Explanation                             |
 | ------------------------------- | ---------- | --------------------------------------- |
@@ -371,6 +373,8 @@ This means that if there are `n` model(s) that consider a sample to be an outlie
 ### 2.3.3 Conclusion
 
 Based on the basic isolated forest and VAE models, we use two integrated learning methods, "stacking" and "bagging", with the former yielding results in between the results of the basic model and the latter falling outside this range.
+
+![image-20220120162634251](images/image-20220120162634251.png)
 
 But for this, we can't directly decide which result is better. In fact, we need further expert opinion (a priori knowledge) to determine the performance of the model.
 
@@ -404,7 +408,7 @@ For this, I visualized the results and calculated the percentage of records that
 
 ### 3.2.1 Theoretical aspect
 
-In the theoretical phase of this project, I learned the theoretical concepts of isolation Forest and (Variational) Auto-Encoder. More importantly, from this starting point, I reviewed and learned more about statistics (mixed Gaussian models, cross-entropy...), and thus able to understand the models from a more "statistical learning method" perspective.
+In the theoretical phase of this project, I learned the theoretical concepts of Isolation Forest and (Variational) Auto-Encoder. More importantly, from this starting point, I reviewed and learned more about statistics (mixed Gaussian models, cross-entropy...), and thus able to understand the models from a more "statistical learning method" perspective.
 
 ### 3.2.2 Practical aspect
 
